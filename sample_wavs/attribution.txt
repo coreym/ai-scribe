@@ -1,0 +1,3 @@
+original recordings from https://www.nature.com/articles/s41597-022-01423-1#Sec3
+"A dataset of simulated patient-physician medical interviews with a focus on respiratory cases"
+Nature, 2022
