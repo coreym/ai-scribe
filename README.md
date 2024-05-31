@@ -1,5 +1,6 @@
-<img src="ai_scribe.webp" width="200">
-# AI Scribe demo with Google Medical Speech Recognition and Gemini
+<img src="ai_scribe.webp" width="200" align="left">
+
+## AI Scribe demo with Google Medical Speech Recognition and Gemini
 ### @coreymaher
 In this demo, we take recorded patient consults from [a public research dataset](https://www.nature.com/articles/s41597-022-01423-1#Sec3) and use the Gemini API to generate a summarized clinical note in the SOAP format. 
 We make use of few-shot prompting with both a negative and positive example of the items to be summarized in the sections of the note, as well as role prompting in the context. 
