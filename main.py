@@ -20,7 +20,7 @@ st.write("In this demo, we take recorded patient consults from [a public researc
         "We make use of few-shot prompting with both a negative and positive example of "
         "the items to be summarized in the sections of the note,"
          " as well as role prompting in the context. ")
-st.image('architecture.png')
+st.image('assets/architecture.png')
 
 # pin the prompt template to the sidebar
 with st.sidebar:
