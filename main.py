@@ -13,6 +13,14 @@ FILELIST=["sample_wavs/GAS0007.wav",
           "sample_wavs/RES0142.wav"
           ]
 
+#List of AI Models to pick from
+MODELLIST=["gemini-1.5-flash-001",
+            "gemini-1.5-pro-001",
+            "gemini-1.0-pro-002",
+           "gemini-1.0-pro-001"
+]
+
+
 st.title("AI Scribe with Google Medical ASR and Gemini")
 st.header("Summary")
 st.write("In this demo, we take recorded patient consults from [a public research dataset](https://www.nature.com/articles/s41597-022-01423-1#Sec3)"
@@ -26,12 +34,25 @@ st.image('assets/architecture.png')
 with st.sidebar:
     st.header("Prompt Template:")
     system_prompt = st.expander("System Prompt")
-    system_prompt.write(pt.system_prompt)
+    #system_prompt.write(pt.system_prompt)
+    ptemplate=system_prompt.text_area("Enter Prompt",'''You are a doctor. Your job is to summarize doctor/patient conversations using the SOAP format (Subjective Objective Assessment Plan) in the following sections",
+"1. Subjective – The history section Include symptom dimensions, chronological narrative of patient’s complains, and information obtained from other sources (always identify source if not the patient.Pertinent past medical history,Pertinent review of body parts, for example, “Patient has not had any stiffness or loss of motion of other joints.”
+Current medications (list with daily dosages).
+2. Objective - any empirical or quantitative measurements observed during the visit. If none were observed, write "N/A"
+difficulty speaking
+vital signs/observations at clinic
+3. Assessment/Problem List – Your assessment of the patient’s problems
+Assessment: A one sentence description of the patient's chief complaint and any potential diagnoses found in the text. If there was no diagnosis, write "N/A"
+Problem list: A numerical list of problems identified. All listed problems need to be supported by findings in subjective and objective areas above.
+4. Plan - the care plan and next steps for the patient. If there are no next steps identified in the text, write "N/A"
+Any tests ordered
+Any recommendations for the patient to try next.
+Output all text in Markdown format.''',height=500)
     few_shot_1 = st.expander("Few shot Example #1")
     few_shot_1.write(pt.few_shot_1)
     few_shot_2 = st.expander("Few Shot Example #2")
     few_shot_2.write(pt.few_shot_2)
-    
+    project_id = st.text_input("Google Cloud ProjectId") #Input Text for ProjectID
 # audio = audiorecorder("Click to record", "Click to stop recording")
 
 # if len(audio) > 0:
@@ -110,6 +131,20 @@ audiofile = st.selectbox(
     options=(FILELIST),
     format_func=lambda x: x.split('/')[-1] # display only the filename
 )
+
+#Gemini Model Selector
+modelselection=st.selectbox(
+    label="Select the Gemini Model you would like to use:",
+    options=(MODELLIST)
+)
+
+#Audio Player
+if st.button('Play Audio'):
+    st.audio(audiofile,format="audio/wav")
+
+
+
+
 if st.button('Transcribe'):
     st.session_state['audiofile'] = audiofile
     st.session_state['transcript'] = ""
@@ -124,14 +159,14 @@ if st.button('Transcribe'):
 
 
 def SOAPify(transcript):
-    full_text = pt.system_prompt + pt.few_shot_1 + pt.few_shot_2 + pt.end.format(input_text=transcript)
+    full_text = ptemplate + pt.few_shot_1 + pt.few_shot_2 + pt.end.format(input_text=transcript) #Add modified prompt
     generation_config = {
     "max_output_tokens": 8192,
     "temperature": 0,
     "top_p": 0.95,
 }
-    vertexai.init(project="genai-healthcare-demo", location="us-central1")
-    model = GenerativeModel("gemini-1.5-flash-001")
+    vertexai.init(project=project_id, location="us-central1")
+    model = GenerativeModel(modelselection)
     response = model.generate_content(full_text,
                                       generation_config=generation_config)
     st.markdown(response.text) 
